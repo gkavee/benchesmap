@@ -11,8 +11,6 @@ from auth.manager import get_user_manager
 from database import get_async_session
 from models.models import User
 
-from auth.schemas import UserUpdate
-
 fastapi_users = FastAPIUsers[User, int](
     get_user_manager,
     [auth_backend],
