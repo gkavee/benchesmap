@@ -36,7 +36,7 @@ async def get_users(limit: int, offset: int, session: AsyncSession = Depends(get
 @router.post("/link_tg")
 async def link_tg(tg_username: str, session: AsyncSession = Depends(get_async_session),
                   user: User = Depends(current_active_user)):
-    tg_username_pattern = r'^[a-zA-Z0-9_-]{5,32}$'
+    tg_username_pattern = r'^[a-zA-Z0-9_]{5,32}$'
     if not re.match(tg_username_pattern, tg_username):
         return {"status": "error", "message": "Некорректный Telegram username"}
 
