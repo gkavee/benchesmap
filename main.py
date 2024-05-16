@@ -15,10 +15,14 @@ app = FastAPI(
 )
 
 origins = [
-    "http://localhost:8000",
-    "http://localhost:5173",
-    "http://77.223.100.162:5173",
-    "http://77.223.100.162:8000",
+    "https://localhost:8000",
+    "https://localhost:5173",
+    "https://localhost:5001",
+    "https://localhost:5002",
+    "https://f4c676c6e47e.vps.myjino.ru:49379",
+    "https://f4c676c6e47e.vps.myjino.ru",
+    "https://api.fitji.ru",
+    "https://fitji.ru",
 ]
 
 app.add_middleware(

@@ -9,6 +9,7 @@ from auth.manager import get_user_manager
 from benches.schemas import BenchCreate
 from models.models import Bench, User
 
+from sqlalchemy.exc import SQLAlchemyError
 from fastapi_cache.decorator import cache
 
 fastapi_users = FastAPIUsers[User, int](
@@ -22,6 +23,7 @@ router = APIRouter(
         tags=["benches"]
 )
 
+
 @router.get("/benches")
 @cache(expire=60)
 async def get_benches(limit: int, offset: int, session: AsyncSession = Depends(get_async_session)):
@@ -34,6 +36,7 @@ async def get_benches(limit: int, offset: int, session: AsyncSession = Depends(g
                 "details": None}
     except Exception as e:
         return {"status": "error", "details": str(e)}
+
 
 @router.get("/bench/{bench_id}")
 async def get_bench(bench_id: int, session: AsyncSession = Depends(get_async_session)):
@@ -49,6 +52,7 @@ async def get_bench(bench_id: int, session: AsyncSession = Depends(get_async_ses
     except Exception:
         return {"status": "error"}
 
+
 @router.get("/nearest_bench/")
 async def get_nearest_bench(latitude: float, longitude: float, session: AsyncSession = Depends(get_async_session)):
     result = await session.execute(select(Bench).order_by(
@@ -58,10 +62,10 @@ async def get_nearest_bench(latitude: float, longitude: float, session: AsyncSes
 
     return {'latitude': nearest_point.latitude, 'longitude': nearest_point.longitude}
 
-from sqlalchemy.exc import SQLAlchemyError
 
 @router.post("/bench/create")
-async def create_bench(operation: BenchCreate, session: AsyncSession = Depends(get_async_session), user: User = Depends(current_active_user)):
+async def create_bench(operation: BenchCreate, session: AsyncSession = Depends(get_async_session),
+                       user: User = Depends(current_active_user)):
     try:
         stmt = insert(Bench).values(**operation.model_dump(exclude={"creator_id"}), creator_id=user.id)
         await session.execute(stmt)
@@ -70,8 +74,10 @@ async def create_bench(operation: BenchCreate, session: AsyncSession = Depends(g
     except SQLAlchemyError as e:
         return {"status": "error", "message": str(e)}
 
+
 @router.delete("/bench/delete")
-async def delete_bench(bench_name: str, session: AsyncSession = Depends(get_async_session), user: User = Depends(current_active_user)):
+async def delete_bench(bench_name: str, session: AsyncSession = Depends(get_async_session),
+                       user: User = Depends(current_active_user)):
     try:
         stmt = delete(Bench).where(and_(Bench.name == bench_name, Bench.creator_id == user.id))
         result = await session.execute(stmt)
