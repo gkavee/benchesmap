@@ -1,11 +1,14 @@
 import uuid
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi_users import FastAPIUsers
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.auth import auth_backend
 from auth.manager import get_user_manager
 from auth.schemas import UserRead, UserCreate, UserUpdate
+from database import get_async_session
 from models.models import User
 
 
@@ -15,6 +18,7 @@ fastapi_users = FastAPIUsers[User, uuid.UUID](
 )
 
 router = APIRouter()
+
 router.include_router(
     fastapi_users.get_auth_router(auth_backend),
     prefix="/auth/jwt",
@@ -44,3 +48,14 @@ router.include_router(
     prefix="/users",
     tags=["users"],
 )
+
+
+@router.post("/tg/login")
+async def tg_login(tg_username: str, session: AsyncSession = Depends(get_async_session)):
+    user = select(User).where(User.telegram_username == tg_username)
+    if not user:
+        return {"status": "error", "message": "Ваш Telegram аккаунт не привязан"}
+
+    username = user.username
+    password = user.hashed_password
+
