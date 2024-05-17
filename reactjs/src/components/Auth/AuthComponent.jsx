@@ -4,6 +4,8 @@ import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import CloseIcon from '@material-ui/icons/Close';
 import { Button, Dialog, DialogActions, DialogContent, TextField, Tabs, Tab, IconButton, makeStyles } from '@material-ui/core';
+import LinkTelegram from '../Auth/LinkTelegram.jsx';
+
 
 const useStyles = makeStyles((theme) => ({
     logoutButton: {
@@ -170,6 +172,7 @@ function AuthComponent() {
                    <LoginIcon />
                 </Button>
             )}
+            {isLoggedIn ? <LinkTelegram /> : null}
             <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
                 <IconButton onClick={handleClose} style={{ position: 'absolute', right: '10px', top: '10px', zIndex: '2'}}>
                     <CloseIcon />

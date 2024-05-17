@@ -19,6 +19,8 @@ origins = [
     "https://localhost:5173",
     "https://localhost:5001",
     "https://localhost:5002",
+    "http://localhost:5001",
+    "http://localhost:5002",
     "https://f4c676c6e47e.vps.myjino.ru:49379",
     "https://f4c676c6e47e.vps.myjino.ru",
     "https://api.fitji.ru",
@@ -39,6 +41,7 @@ app.include_router(benches_router)
 app.include_router(users_router)
 app.include_router(auth_router)
 app.include_router(tg_login_router)
+
 
 @app.on_event("startup")
 async def startup():

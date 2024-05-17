@@ -1,6 +1,6 @@
 // config.js
 
-const authApiUrl = "https://api.fitji.ru/auth";
-const apiUrl = "https://api.fitji.ru";
+const authApiUrl = "http://127.0.0.1:8000/auth";
+const apiUrl = "http://127.0.0.1:8000";
 
 export default { authApiUrl, apiUrl };

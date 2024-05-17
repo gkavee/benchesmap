@@ -25,7 +25,7 @@ const BenchesMap = () => {
   const [benches, setBenches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [initialPosition, setInitialPosition] = useState(null);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(50);
   const [offset, setOffset] = useState(0);
   const mapRef = useRef(null);
 
@@ -53,7 +53,7 @@ const BenchesMap = () => {
   const handleMapMove = () => {
     const map = mapRef.current;
     if (map) {
-      const newLimit = 10;
+      const newLimit = 50;
       const bounds = map.getBounds();
       const newOffset = benches.length;
 
