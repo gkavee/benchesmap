@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from benches.router import router as benches_router
 from config import REDIS_HOST, REDIS_PORT
 from users.router import router as users_router
-from auth.router import router as auth_router
+from auth.router import router as auth_router, tg_login_router
 
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
@@ -38,6 +38,7 @@ app.add_middleware(
 app.include_router(benches_router)
 app.include_router(users_router)
 app.include_router(auth_router)
+app.include_router(tg_login_router)
 
 @app.on_event("startup")
 async def startup():

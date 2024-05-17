@@ -1,12 +1,14 @@
 import uuid
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi_users import FastAPIUsers
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-
-from auth.auth import auth_backend
+from auth.auth import auth_backend, get_jwt_strategy
 from auth.manager import get_user_manager
 from auth.schemas import UserRead, UserCreate, UserUpdate
+from database import get_async_session
 from models.models import User
 
 
@@ -46,3 +48,23 @@ router.include_router(
     prefix="/users",
     tags=["users"],
 )
+
+'''
+Telegram auth logic
+'''
+tg_login_router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+@tg_login_router.post("/tg/login")
+async def tg_login(telegram_username: str, session: AsyncSession = Depends(get_async_session)):
+    async with session.begin():
+        stmt = select(User).where(User.telegram_username == telegram_username)
+        result = await session.execute(stmt)
+        user = result.scalar_one_or_none()
+        if user:
+            strategy = get_jwt_strategy()
+            response = await auth_backend.login(strategy, user)
+            return response
+        else:
+            raise HTTPException(status_code=404, detail="User not found")
+
