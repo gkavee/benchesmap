@@ -2,13 +2,14 @@ from fastapi_users.authentication import CookieTransport, AuthenticationBackend
 from fastapi_users.authentication import JWTStrategy
 
 from fastapi import Response, status
+from fastapi.responses import JSONResponse
 
 from config import SECRET
 
 
 class CustomCookieTransport(CookieTransport):
     async def get_login_response(self, token: str) -> Response:
-        response = Response(status_code=status.HTTP_200_OK, content=token)
+        response = JSONResponse(status_code=status.HTTP_200_OK, content={"token": token})
         return self._set_login_cookie(response, token)
 
 
