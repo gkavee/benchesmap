@@ -41,5 +41,5 @@ reactjs/dist-ssr
 *.sln
 *.sw?
 
-#config
+# Config
 reactjs/src/config.js

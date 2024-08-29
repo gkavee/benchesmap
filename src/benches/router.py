@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from fastapi_users import FastAPIUsers
 from sqlalchemy import select, insert, func, delete, and_
 from sqlalchemy.exc import SQLAlchemyError

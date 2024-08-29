@@ -19,5 +19,3 @@ WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 COPY . .
-
-#CMD ["wait-for-it", "db:5432", "--", "alembic", "upgrade", "head", "&&", "gunicorn", "src.main:app", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind=0.0.0.0:5002"]
