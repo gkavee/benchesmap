@@ -8,7 +8,7 @@ venv*/
 
 # Editor specific files
 .idea/
-migrations/
+src/migrations/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
