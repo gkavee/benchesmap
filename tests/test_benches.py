@@ -71,7 +71,7 @@ async def test_benches(async_session: AsyncSession):
     await async_session.commit()
 
 
-@pytest.mark.asyncio(loop_scope="function")
+@pytest.mark.asyncio
 async def test_get_benches(authorized_client: AsyncClient, test_benches):
     response = await authorized_client.get("/benches")
     assert response.status_code == 200
@@ -80,15 +80,15 @@ async def test_get_benches(authorized_client: AsyncClient, test_benches):
     assert data[0]["name"] == "Bench 1"
 
 
-@pytest.mark.asyncio(loop_scope="function")
+@pytest.mark.asyncio
 async def test_get_bench(authorized_client: AsyncClient, test_benches):
-    response = await authorized_client.get("/bench/1")
+    response = await authorized_client.get("/benches/1")
     assert response.status_code == 200
     data = response.json()
     assert data["name"] == "Bench 1"
 
 
-@pytest.mark.asyncio(loop_scope="function")
+@pytest.mark.asyncio
 async def test_get_nearest_bench(authorized_client: AsyncClient, test_benches):
     response = await authorized_client.get(
         "/nearest_bench/?latitude=15.015155&longitude=15.015155"
@@ -98,7 +98,7 @@ async def test_get_nearest_bench(authorized_client: AsyncClient, test_benches):
     assert data["name"] == "Bench 2"
 
 
-@pytest.mark.asyncio(loop_scope="function")
+@pytest.mark.asyncio
 async def test_create_and_delete_bench(authorized_client: AsyncClient):
     bench_data = {
         "name": "New Bench",
@@ -107,13 +107,13 @@ async def test_create_and_delete_bench(authorized_client: AsyncClient):
         "latitude": 50.0,
         "longitude": 50.0,
     }
-    response = await authorized_client.post("/bench/create", json=bench_data)
+    response = await authorized_client.post("/create_bench", json=bench_data)
     assert response.status_code == 200
     data = response.json()
     assert data["name"] == "New Bench"
 
     response_delete = await authorized_client.delete(
-        "/bench/delete", params={"bench_name": "New Bench"}
+        "/delete_bench", params={"bench_name": "New Bench"}
     )
     assert response_delete.status_code == 200
     data = response_delete.json()

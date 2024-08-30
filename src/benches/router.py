@@ -42,7 +42,7 @@ async def get_benches(
         return ErrorHTTPException(status_code=400, error_code=EMPTY_LIST, detail=str(e))
 
 
-@router.get("/bench/{bench_id}", response_model=BenchRead)
+@router.get("/benches/{bench_id}", response_model=BenchRead)
 async def get_bench(bench_id: int, session: AsyncSession = Depends(get_async_session)):
     try:
         query = select(Bench).where(bench_id == Bench.id)
@@ -76,7 +76,7 @@ async def get_nearest_bench(
         return ErrorHTTPException(status_code=400, error_code=UNKNOWN, detail=str(e))
 
 
-@router.post("/bench/create", response_model=BenchRead)
+@router.post("/create_bench", response_model=BenchRead)
 async def create_bench(
     operation: BenchCreate,
     session: AsyncSession = Depends(get_async_session),
@@ -116,7 +116,7 @@ async def create_bench(
         return ErrorHTTPException(status_code=400, error_code=UNKNOWN, detail=str(e))
 
 
-@router.delete("/bench/delete")
+@router.delete("/delete_bench")
 async def delete_bench(
     bench_name: str,
     session: AsyncSession = Depends(get_async_session),
