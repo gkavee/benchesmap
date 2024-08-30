@@ -15,13 +15,27 @@ from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    redis = aioredis.from_url(
+        f"redis://{REDIS_HOST}:{REDIS_PORT}", encoding="utf8", decode_responses=True
+    )
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+    try:
+        yield
+    finally:
+        await redis.close()
+
+
 tags_metadata = [
     {"name": "Benches", "description": "Operations with benches"},
     {"name": "Users", "description": "Operations with users"},
     {"name": "Authorization", "description": "Authorization logic"},
 ]
 
-app = FastAPI(title="Bench app", docs_url="/api", openapi_tags=tags_metadata)
+app = FastAPI(
+    title="Bench app", docs_url="/api", openapi_tags=tags_metadata, lifespan=lifespan
+)
 
 setup_error_handlers(app)
 
@@ -58,15 +72,3 @@ app.add_middleware(
         "Authorization",
     ],
 )
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    redis = aioredis.from_url(
-        f"redis://{REDIS_HOST}:{REDIS_PORT}", encoding="utf8", decode_responses=True
-    )
-    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
-    try:
-        yield
-    finally:
-        pass
