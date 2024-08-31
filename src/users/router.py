@@ -5,8 +5,8 @@ from fastapi_users import FastAPIUsers
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.service import auth_backend
 from src.auth.manager import get_user_manager
+from src.auth.service import auth_backend
 from src.constants import EMPTY_LIST, INVALID_TG, UNKNOWN
 from src.database import get_async_session
 from src.exceptions import ErrorHTTPException
@@ -37,7 +37,9 @@ async def get_users(
     try:
         query = select(User)
         result = await session.execute(query)
-        return result.mappings().all()[offset:][:limit]
+        users = result.scalars().all()[offset:][:limit]
+        users_list = [UserRead.from_orm(user) for user in users]
+        return users_list
     except Exception as e:
         return ErrorHTTPException(status_code=400, error_code=EMPTY_LIST, detail=str(e))
 

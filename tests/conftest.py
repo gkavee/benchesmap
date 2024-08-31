@@ -2,15 +2,13 @@ from typing import AsyncGenerator
 
 import pytest
 from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
 from httpx import AsyncClient
+from redis import asyncio as aioredis
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
-from redis import asyncio as aioredis
-from fastapi_cache.backends.redis import RedisBackend
-from src.config import REDIS_HOST, REDIS_PORT
 
-from src.database import get_async_session
 from src.base import metadata
 from src.config import (
     DB_HOST_TEST,
@@ -18,7 +16,10 @@ from src.config import (
     DB_PASS_TEST,
     DB_PORT_TEST,
     DB_USER_TEST,
+    REDIS_HOST,
+    REDIS_PORT,
 )
+from src.database import get_async_session
 from src.main import app
 
 DATABASE_URL_TEST = f"postgresql+asyncpg://{DB_USER_TEST}:{DB_PASS_TEST}@{DB_HOST_TEST}:{DB_PORT_TEST}/{DB_NAME_TEST}"

@@ -5,14 +5,13 @@ from fastapi_users import FastAPIUsers
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.service import auth_backend, get_jwt_strategy
 from src.auth.manager import get_user_manager
+from src.auth.service import auth_backend, get_jwt_strategy
 from src.constants import NOT_FOUND
-from src.exceptions import ErrorHTTPException
-from src.users.schemas import UserRead, UserCreate
 from src.database import get_async_session
+from src.exceptions import ErrorHTTPException
 from src.users.models import User
-
+from src.users.schemas import UserCreate, UserRead
 
 fastapi_users = FastAPIUsers[User, uuid.UUID](
     get_user_manager,

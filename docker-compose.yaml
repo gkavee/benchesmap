@@ -37,17 +37,5 @@ services:
       - db
       - redis
 
-  react:
-    build:
-      context: ./reactjs
-      dockerfile: ./Dockerfile
-    container_name: react_app
-    ports:
-      - 5001:5001
-    expose:
-      - 5001
-    depends_on:
-      - fastapi
-
 volumes:
   postgres_data:

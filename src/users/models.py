@@ -1,7 +1,9 @@
-from typing import List, Optional
 import datetime
-from sqlalchemy import String, TIMESTAMP, Boolean
+from typing import List, Optional
+
+from sqlalchemy import TIMESTAMP, Boolean, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from src.base import Base
 
 

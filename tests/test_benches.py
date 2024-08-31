@@ -2,8 +2,8 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.users.models import User
 from src.benches.models import Bench
+from src.users.models import User
 
 
 @pytest.fixture(scope="function")

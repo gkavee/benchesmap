@@ -1,20 +1,18 @@
 from fastapi import APIRouter, Depends, Query
+from fastapi_cache.decorator import cache
 from fastapi_users import FastAPIUsers
-from sqlalchemy import select, insert, func, delete, and_
+from sqlalchemy import and_, delete, func, insert, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.service import auth_backend
-from src.constants import EMPTY_LIST, UNKNOWN, NOT_FOUND, VALIDATION_ERROR
-from src.database import get_async_session
 from src.auth.manager import get_user_manager
-from src.benches.schemas import BenchCreate, BenchRead
+from src.auth.service import auth_backend
 from src.benches.models import Bench
-from src.users.models import User
-
-from fastapi_cache.decorator import cache
-
+from src.benches.schemas import BenchCreate, BenchRead
+from src.constants import EMPTY_LIST, NOT_FOUND, UNKNOWN, VALIDATION_ERROR
+from src.database import get_async_session
 from src.exceptions import ErrorHTTPException
+from src.users.models import User
 
 fastapi_users = FastAPIUsers[User, int](
     get_user_manager,
