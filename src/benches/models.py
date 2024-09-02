@@ -17,6 +17,7 @@ class Bench(Base):
     latitude: Mapped[Optional[float]] = mapped_column(Float, nullable=False)
     longitude: Mapped[Optional[float]] = mapped_column(Float, nullable=False)
     creator_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    photo_url: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
 
     creator: Mapped[User] = relationship("User", back_populates="benches")
 
@@ -24,5 +25,5 @@ class Bench(Base):
         return (
             f"Bench(id={self.id!r}, name={self.name!r}, description={self.description!r}, "
             f"count={self.count!r}, latitude={self.latitude!r}, longitude={self.longitude!r}, "
-            f"creator_id={self.creator_id!r})"
+            f"creator_id={self.creator_id!r}, photo_url={self.photo_url!r})"
         )

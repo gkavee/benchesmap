@@ -1,6 +1,8 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
+from firebase_admin import credentials
 
 load_dotenv()
 
@@ -22,3 +24,9 @@ SECRET_VER = os.environ.get("SECRET_VER")
 
 REDIS_HOST = os.environ.get("REDIS_HOST")
 REDIS_PORT = os.environ.get("REDIS_PORT")
+
+FIREBASE_BUCKET = os.environ.get("FIREBASE_BUCKET")
+
+current_dir = Path(__file__).parent
+firebase_path = current_dir.parent / "creds" / "firebase.json"
+credentials = credentials.Certificate(firebase_path)

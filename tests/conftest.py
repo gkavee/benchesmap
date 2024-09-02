@@ -10,15 +10,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
 from src.base import metadata
-from src.config import (
-    DB_HOST_TEST,
-    DB_NAME_TEST,
-    DB_PASS_TEST,
-    DB_PORT_TEST,
-    DB_USER_TEST,
-    REDIS_HOST,
-    REDIS_PORT,
-)
+from src.config import (DB_HOST_TEST, DB_NAME_TEST, DB_PASS_TEST, DB_PORT_TEST,
+                        DB_USER_TEST, REDIS_HOST, REDIS_PORT)
 from src.database import get_async_session
 from src.main import app
 

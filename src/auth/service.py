@@ -1,10 +1,7 @@
 from fastapi import Response, status
 from fastapi.responses import JSONResponse
-from fastapi_users.authentication import (
-    AuthenticationBackend,
-    CookieTransport,
-    JWTStrategy,
-)
+from fastapi_users.authentication import (AuthenticationBackend,
+                                          CookieTransport, JWTStrategy)
 
 from src.config import SECRET
 

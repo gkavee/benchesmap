@@ -1,5 +1,8 @@
+import io
+
 import pytest
 from httpx import AsyncClient
+from PIL import Image
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.benches.models import Bench
@@ -118,3 +121,25 @@ async def test_create_and_delete_bench(authorized_client: AsyncClient):
     assert response_delete.status_code == 200
     data = response_delete.json()
     assert data["detail"] == "Bench New Bench deleted"
+
+
+@pytest.mark.asyncio
+async def test_upload_bench_photo(authorized_client: AsyncClient):
+    image = Image.new("RGB", (100, 100), color="red")
+    img = io.BytesIO()
+    image.save(img, format="PNG")
+    img.seek(0)
+
+    response = await authorized_client.post(
+        "/upload_bench_photo/1", files={"file": ("test_image.png", img, "image/png")}
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+
+    assert data["filename"].startswith(f"bench1")
+    assert data["file_location"].endswith(".png")
+
+    response_photo = await authorized_client.get("/benches/1")
+    photo_url = response_photo["photo_url"]
+    assert photo_url is not None

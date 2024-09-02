@@ -1,7 +1,15 @@
-from fastapi import APIRouter, Depends, Query
+import asyncio
+from datetime import datetime
+
+from fastapi import (APIRouter, BackgroundTasks, Depends, File, Query,
+                     UploadFile)
 from fastapi_cache.decorator import cache
 from fastapi_users import FastAPIUsers
-from sqlalchemy import and_, delete, func, insert, select
+from google.api_core.retry import Retry
+from google.auth.exceptions import TransportError
+from google.cloud.exceptions import GoogleCloudError
+from firebase_admin import storage
+from sqlalchemy import and_, delete, func, insert, select, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,6 +17,7 @@ from src.auth.manager import get_user_manager
 from src.auth.service import auth_backend
 from src.benches.models import Bench
 from src.benches.schemas import BenchCreate, BenchRead
+from src.config import FIREBASE_BUCKET
 from src.constants import EMPTY_LIST, NOT_FOUND, UNKNOWN, VALIDATION_ERROR
 from src.database import get_async_session
 from src.exceptions import ErrorHTTPException
@@ -103,6 +112,7 @@ async def create_bench(
             latitude=created_bench.latitude,
             longitude=created_bench.longitude,
             creator_id=created_bench.creator_id,
+            photo_url=created_bench.photo_url,
         )
 
     except SQLAlchemyError as e:
@@ -136,3 +146,51 @@ async def delete_bench(
             )
     except Exception as e:
         return ErrorHTTPException(status_code=400, error_code=UNKNOWN, detail=str(e))
+
+
+@router.post("/upload_bench_photo/{bench_id}")
+async def upload_bench_photo(
+    bench_id: int,
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    session: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_active_user),
+):
+    content = await file.read()
+    filename = f'bench{bench_id}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.png'
+
+    async def upload_to_cdn():
+        try:
+            bucket = storage.bucket()
+            blob = bucket.blob(f"benches/{bench_id}/{filename}")
+
+            retry_strategy = Retry(
+                total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504]
+            )
+            blob._retry = retry_strategy
+
+            await asyncio.wait_for(
+                asyncio.to_thread(
+                    blob.upload_from_string, content, content_type=file.content_type
+                ),
+                timeout=300,
+            )
+
+            blob.make_public()
+            public_url = blob.public_url
+
+            stmt = (
+                update(Bench)
+                .where(and_(Bench.id == bench_id, Bench.creator_id == user.id))
+                .values(photo_url=public_url)
+            )
+            await session.execute(stmt)
+            await session.commit()
+
+        except (asyncio.TimeoutError, GoogleCloudError, TransportError) as e:
+            print(f"An error occurred: {str(e)}")
+            raise ErrorHTTPException(status_code=500, error_code=1100, detail="Failed to upload photo")
+
+    background_tasks.add_task(upload_to_cdn)
+
+    return {"status_code": "200", "filename": filename}

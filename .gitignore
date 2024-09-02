@@ -5,10 +5,12 @@ venv*/
 .env/
 .env
 .env-non-dev
+creds/
 
 # Editor specific files
 .idea/
 src/migrations/
+photos/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

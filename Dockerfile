@@ -19,3 +19,7 @@ WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 COPY . .
+
+CMD ["alembic", "upgrade", "head"]
+CMD ["gunicorn", "src.main:app", "--bind", "0.0.0.0:5002", "--workers", "4", \
+    "--worker-class", "uvicorn.workers.UvicornWorker"]
