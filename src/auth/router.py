@@ -5,6 +5,7 @@ from fastapi_users import FastAPIUsers
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.auth.custom_verify import get_verify_router
 from src.auth.manager import get_user_manager
 from src.auth.service import auth_backend, get_jwt_strategy
 from src.constants import NOT_FOUND
@@ -33,13 +34,10 @@ router.include_router(
 )
 
 router.include_router(
-    fastapi_users.get_verify_router(UserRead),
-    prefix="/auth",
+    get_verify_router(get_user_manager, UserRead),
+    prefix="/auth"
 )
 
-"""
-Telegram auth logic
-"""
 tg_login_router = APIRouter(prefix="/auth")
 
 

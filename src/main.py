@@ -1,5 +1,4 @@
 from contextlib import asynccontextmanager
-from pathlib import Path
 from typing import AsyncGenerator
 
 import firebase_admin
@@ -10,7 +9,7 @@ from redis import asyncio as aioredis
 
 from src.auth.router import router as auth_router
 from src.benches.router import router as benches_router
-from src.config import FIREBASE_BUCKET, REDIS_HOST, REDIS_PORT, credentials
+from src.config import FIREBASE_BUCKET, REDIS_URI, firebase_creds
 from src.error_handlers import setup_error_handlers
 from src.users.router import router as users_router
 
@@ -18,7 +17,7 @@ from src.users.router import router as users_router
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     redis = aioredis.from_url(
-        f"redis://{REDIS_HOST}:{REDIS_PORT}", encoding="utf8", decode_responses=True
+        REDIS_URI, encoding="utf8", decode_responses=True
     )
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     try:
@@ -43,4 +42,4 @@ app.include_router(benches_router, tags=["Benches"])
 app.include_router(users_router, tags=["Users"])
 app.include_router(auth_router, tags=["Authorization"])
 
-firebase_admin.initialize_app(credentials, {"storageBucket": FIREBASE_BUCKET})
+firebase_admin.initialize_app(firebase_creds, {"storageBucket": FIREBASE_BUCKET})
