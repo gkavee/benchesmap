@@ -1,7 +1,7 @@
 import datetime
 from typing import List, Optional
 
-from sqlalchemy import TIMESTAMP, Boolean, String
+from sqlalchemy import TIMESTAMP, Boolean, String, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.base import Base
@@ -11,12 +11,14 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    email: Mapped[str] = mapped_column(String(128), nullable=False, unique=True)
+    email: Mapped[str] = mapped_column(String(254), nullable=False, unique=True)
     username: Mapped[str] = mapped_column(String(32), nullable=False, unique=True)
     telegram_username: Mapped[Optional[str]] = mapped_column(
-        String(64), unique=True, nullable=True
+        String(32),
+        CheckConstraint("LENGTH(telegram_username) >= 5", name="telegram_username_min_length"),
+        unique=True, nullable=True
     )
-    hashed_password: Mapped[str] = mapped_column(String(1024), nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     registered_at: Mapped[datetime.datetime] = mapped_column(
         TIMESTAMP, default=datetime.datetime.utcnow
     )

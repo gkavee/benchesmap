@@ -5,9 +5,12 @@ from fastapi_users import (BaseUserManager, IntegerIDMixin, exceptions, models,
                            schemas, jwt)
 import jwt
 from fastapi_users.jwt import generate_jwt, decode_jwt
+from sqlalchemy.exc import IntegrityError
 
 from src.config import SECRET_PASS, SECRET_VER
+from src.constants import NON_UNIQ_FIELD
 from src.database import User, get_user_db
+from src.exceptions import ErrorHTTPException
 from src.tasks.task import send_verification_email
 
 
@@ -21,21 +24,27 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         safe: bool = False,
         request: Optional[Request] = None,
     ) -> models.UP:
-        await self.validate_password(user_create.password, user_create)
+        try:
+            await self.validate_password(user_create.password, user_create)
 
-        existing_user = await self.user_db.get_by_email(user_create.email)
-        if existing_user is not None:
-            raise exceptions.UserAlreadyExists()
+            existing_user = await self.user_db.get_by_email(user_create.email)
+            if existing_user is not None:
+                raise exceptions.UserAlreadyExists()
 
-        user_dict = (
-            user_create.create_update_dict()
-            if safe
-            else user_create.create_update_dict_superuser()
-        )
-        password = user_dict.pop("password")
-        user_dict["hashed_password"] = self.password_helper.hash(password)
+            user_dict = (
+                user_create.create_update_dict()
+                if safe
+                else user_create.create_update_dict_superuser()
+            )
+            password = user_dict.pop("password")
+            user_dict["hashed_password"] = self.password_helper.hash(password)
 
-        created_user = await self.user_db.create(user_dict)
+            created_user = await self.user_db.create(user_dict)
+
+        except IntegrityError as e:
+            raise ErrorHTTPException(status_code=400, error_code=NON_UNIQ_FIELD,
+                                     detail='Пользователь с этим username уже существует' if "(username)" in str(e)
+                                     else "Пользователь с этим telegram username уже существует")
 
         await self.on_after_register(created_user, request)
         await self.request_verify(created_user, request)
